@@ -58,7 +58,7 @@ most_active_stats = session.query(func.min(measurements.tobs), func.max(measurem
 
 # Climate App Design 1
 @app.route("/")
-def home():
+def welcome():
     print("Server received request for 'Home' page...")
     return (
         f"Welcome to my Climate App 'Home' page!<br/>"
