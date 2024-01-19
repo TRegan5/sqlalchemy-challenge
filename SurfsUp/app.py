@@ -1,5 +1,7 @@
 # Import the dependencies.
 import numpy as np
+import pandas as pd
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -34,6 +36,7 @@ app = Flask(__name__)
 #################################################
 # Flask Routes
 #################################################
+# Climate App Design 1
 @app.route("/")
 def home():
     print("Server received request for 'Home' page...")
@@ -47,21 +50,30 @@ def home():
         f"/api/v1.0/<start>/<end><br/>"
         )
 
+# Climate App Design 2
 @app.route("/api/v1.0/precipitation")
 def home():
     print("Server received request for 'Precipitation' page...")
     return "Welcome to my 'Precipitation' page!"
 
+# Climate App Design 3
 @app.route("/api/v1.0/stations")
 def home():
+    # Query list of stations
+    query = session.query(stations.station).all()
+    station_list = list(np.ravel(query))
     print("Server received request for 'Stations' page...")
-    return "Welcome to my 'Stations' page!"
+    return (
+        f"Welcome to my 'Stations' page!<br/>"
+        jsonify(station_list))
 
+# Climate App Design 4
 @app.route("/api/v1.0/tobs")
 def home():
     print("Server received request for 'Temperature Observations' page...")
     return "Welcome to my 'Temperature Observations' page!"
 
+# Climate App Design 5 and 6
 @app.route("/api/v1.0/<start>")
 def home():
     print("Server received request for 'Summary Statistics' page...")
