@@ -45,6 +45,13 @@ print(last_date)
 last_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
 print(last_year)
 
+# Design a query to find the most active stations (i.e. which stations have the most rows?)
+# List the stations and their counts in descending order.
+station_activity = session.query(measurements.station, func.count(measurements.station)).\
+    group_by(measurements.station).\
+    order_by(func.count(measurements.date).desc()).all()
+most_active = station_activity[0][0] # get id of most active station
+
 # calculate the lowest, highest, and average temperature
 most_active_stats = session.query(func.min(measurements.tobs), func.max(measurements.tobs), func.avg(measurements.tobs)).\
     filter(measurements.station == most_active).all()
@@ -86,7 +93,12 @@ def home():
 @app.route("/api/v1.0/tobs")
 def home():
     print("Server received request for 'Temperature Observations' page...")
-    return "Welcome to my 'Temperature Observations' page!"
+    last_yr_tobs = session.query(measurements.date, measurements.tobs).\
+        filter(measurements.date >= last_year).\
+        filter(measurements.tobs != None).\
+        filter(measurements.station == most_active).\
+        order_by(measurements.date).all()
+    return jsonify(last_yr_tobs)
 
 # Climate App Design 5 and 6
 @app.route("/api/v1.0/<start>")
