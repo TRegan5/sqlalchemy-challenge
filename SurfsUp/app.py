@@ -37,19 +37,6 @@ app = Flask(__name__)
 # Flask Routes
 #################################################
 
-
-
-# Design a query to find the most active stations (i.e. which stations have the most rows?)
-# List the stations and their counts in descending order.
-station_activity = session.query(measurements.station, func.count(measurements.station)).\
-    group_by(measurements.station).\
-    order_by(func.count(measurements.date).desc()).all()
-most_active = station_activity[0][0] # get id of most active station
-
-# calculate the lowest, highest, and average temperature
-most_active_stats = session.query(func.min(measurements.tobs), func.max(measurements.tobs), func.avg(measurements.tobs)).\
-    filter(measurements.station == most_active).all()
-
 # Climate App Design 1
 @app.route("/")
 def welcome():
@@ -96,6 +83,17 @@ def stations():
 @app.route("/api/v1.0/tobs")
 def tobs():
     print("Server received request for 'Temperature Observations' page...")
+    # Design a query to find the most active stations (i.e. which stations have the most rows?)
+    # List the stations and their counts in descending order.
+    station_activity = session.query(measurements.station, func.count(measurements.station)).\
+        group_by(measurements.station).\
+        order_by(func.count(measurements.date).desc()).all()
+    most_active = station_activity[0][0] # get id of most active station
+
+    # calculate the lowest, highest, and average temperature
+    most_active_stats = session.query(func.min(measurements.tobs), func.max(measurements.tobs), func.avg(measurements.tobs)).\
+        filter(measurements.station == most_active).all()
+
     last_yr_tobs = session.query(measurements.date, measurements.tobs).\
         filter(measurements.date >= last_year).\
         filter(measurements.tobs != None).\
