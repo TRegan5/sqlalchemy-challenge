@@ -37,13 +37,7 @@ app = Flask(__name__)
 # Flask Routes
 #################################################
 
-# Find the most recent date in the data set.
-last_date = session.query(measurements.date).order_by(measurements.date.desc()).first()#[0]
-print(last_date)
 
-# Calculate the date one year from the last date in data set.
-last_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-print(last_year)
 
 # Design a query to find the most active stations (i.e. which stations have the most rows?)
 # List the stations and their counts in descending order.
@@ -72,8 +66,17 @@ def welcome():
 
 # Climate App Design 2
 @app.route("/api/v1.0/precipitation")
-def home():
+def precipitation():
     print("Server received request for 'Precipitation' page...")
+
+    # Find the most recent date in the data set.
+    last_date = session.query(measurements.date).order_by(measurements.date.desc()).first()#[0]
+    print(last_date)
+
+    # Calculate the date one year from the last date in data set.
+    last_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    print(last_year)
+
     last_yr_prcp = session.query(measurements.date, measurements.prcp).\
         filter(measurements.date >= last_year).\
             filter(measurements.prcp != None).\
@@ -82,7 +85,7 @@ def home():
 
 # Climate App Design 3
 @app.route("/api/v1.0/stations")
-def home():
+def stations():
     print("Server received request for 'Stations' page...")
     # Query list of stations
     query = session.query(stations.station).all()
@@ -91,7 +94,7 @@ def home():
 
 # Climate App Design 4
 @app.route("/api/v1.0/tobs")
-def home():
+def tobs():
     print("Server received request for 'Temperature Observations' page...")
     last_yr_tobs = session.query(measurements.date, measurements.tobs).\
         filter(measurements.date >= last_year).\
@@ -102,11 +105,14 @@ def home():
 
 # Climate App Design 5 and 6
 @app.route("/api/v1.0/<start>")
-def home():
+def start():
     print("Server received request for 'Summary Statistics' page...")
     return "Welcome to my 'Summary Statistics' page!"
 
 @app.route("/api/v1.0/<start>/<end>")
-def home():
+def start_end():
     print("Server received request for 'Summary Statistics' page...")
     return "Welcome to my 'Summary Statistics' page!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
