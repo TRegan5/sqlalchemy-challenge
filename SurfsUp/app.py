@@ -85,11 +85,6 @@ def tobs():
         group_by(measurements.station).\
         order_by(func.count(measurements.date).desc()).all()
     most_active = station_activity[0][0] # get id of most active station
-
-    # calculate the lowest, highest, and average temperature
-    most_active_stats = session.query(func.min(measurements.tobs), func.max(measurements.tobs), func.avg(measurements.tobs)).\
-        filter(measurements.station == most_active).all()
-
     last_yr_tobs = session.query(measurements.date, measurements.tobs).\
         filter(measurements.date >= last_year).\
         filter(measurements.tobs != None).\
@@ -99,13 +94,15 @@ def tobs():
 
 # Climate App Design 5 and 6
 @app.route("/api/v1.0/<start>")
-def start():
-    start = input
-    return "Welcome to my 'Summary Statistics' page!"
-
 @app.route("/api/v1.0/<start>/<end>")
-def start_end():
-    return "Welcome to my 'Summary Statistics' page!"
+def date_range_stats(start = None, end = None):
+    ask = [func.min(measurements.tobs), func.avg(measurements.tobs), func.max(measurements.tobs)]
+    if end:
+        answer = session.query(ask).filter(measurements.date >= start).filter(measurements.date <=end).all()
+    else:
+        answer = session.query(ask).filter(measurements.date >= start).all()
+    summary_temps = list(np.ravel(answer))
+    return jsonify(summary_temps)
 
 if __name__ == '__main__':
     app.run(debug=True)
