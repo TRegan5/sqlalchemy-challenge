@@ -37,10 +37,18 @@ app = Flask(__name__)
 # Flask Routes
 #################################################
 
+# DRY code for use across multiple routes
+
+# Find the most recent date in the data set.
+last_date = session.query(measurements.date).order_by(measurements.date.desc()).first()#[0]
+
+# Calculate the date one year from the last date in data set.
+last_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+
+
 # Climate App Design 1
 @app.route("/")
 def welcome():
-    print("Server received request for 'Home' page...")
     return (
         f"Welcome to my Climate App 'Home' page!<br/>"
         f"Here, you may follow links to precipitation information, station information, or various forms of observed temperatures.<br/>"
@@ -49,21 +57,11 @@ def welcome():
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/<start><br/>"
         f"/api/v1.0/<start>/<end><br/>"
-        )
+    )
 
 # Climate App Design 2
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    print("Server received request for 'Precipitation' page...")
-
-    # Find the most recent date in the data set.
-    last_date = session.query(measurements.date).order_by(measurements.date.desc()).first()#[0]
-    print(last_date)
-
-    # Calculate the date one year from the last date in data set.
-    last_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    print(last_year)
-
     last_yr_prcp = session.query(measurements.date, measurements.prcp).\
         filter(measurements.date >= last_year).\
             filter(measurements.prcp != None).\
@@ -73,7 +71,6 @@ def precipitation():
 # Climate App Design 3
 @app.route("/api/v1.0/stations")
 def stations():
-    print("Server received request for 'Stations' page...")
     # Query list of stations
     query = session.query(stations.station).all()
     station_list = list(np.ravel(query))
@@ -82,7 +79,6 @@ def stations():
 # Climate App Design 4
 @app.route("/api/v1.0/tobs")
 def tobs():
-    print("Server received request for 'Temperature Observations' page...")
     # Design a query to find the most active stations (i.e. which stations have the most rows?)
     # List the stations and their counts in descending order.
     station_activity = session.query(measurements.station, func.count(measurements.station)).\
@@ -104,12 +100,11 @@ def tobs():
 # Climate App Design 5 and 6
 @app.route("/api/v1.0/<start>")
 def start():
-    print("Server received request for 'Summary Statistics' page...")
+    start = input
     return "Welcome to my 'Summary Statistics' page!"
 
 @app.route("/api/v1.0/<start>/<end>")
 def start_end():
-    print("Server received request for 'Summary Statistics' page...")
     return "Welcome to my 'Summary Statistics' page!"
 
 if __name__ == '__main__':
